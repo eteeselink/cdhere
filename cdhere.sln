@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cdhere", "cdhere\cdhere.vcxproj", "{3B46C120-E6C8-47A6-B787-03469557E743}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3B46C120-E6C8-47A6-B787-03469557E743}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3B46C120-E6C8-47A6-B787-03469557E743}.Debug|Win32.Build.0 = Debug|Win32
+		{3B46C120-E6C8-47A6-B787-03469557E743}.Release|Win32.ActiveCfg = Release|Win32
+		{3B46C120-E6C8-47A6-B787-03469557E743}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
