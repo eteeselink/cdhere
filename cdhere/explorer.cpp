@@ -162,7 +162,22 @@ public:
     {
         CoTaskMemFree(obj);
     }
-}
+};
+
+template <typename T> class ComObj
+{
+private:
+    T* obj;
+public:
+    ComObj(T* obj)
+        : obj(obj)
+    {}
+
+    ~ComObj()
+    {
+        obj->Release();
+    }
+};
 
 
 void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLength)
@@ -177,36 +192,94 @@ void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLen
 
     IDispatch* dispatch = dispatches[0];
 
-    WebBrowserApp webBrowserApp(dispatch);
+    IWebBrowserApp *pwba;
+    VERIFY(dispatch->QueryInterface(IID_IWebBrowserApp, (void**)&pwba));
+    ComObj<IDispatch> webBrowser(pwba);
+
+    HWND hwndWBA;
+    VERIFY(pwba->get_HWND((LONG_PTR*)&hwndWBA));
+
+    IServiceProvider *psp;
+    VERIFY(pwba->QueryInterface(IID_IServiceProvider, (void**)&psp));
+    ComObj<IServiceProvider> serviceProvider(psp);
+
+         IShellBrowser *psb;
+         if (SUCCEEDED(psp->QueryService(SID_STopLevelBrowser,
+                              IID_IShellBrowser, (void**)&psb))) {
+           IShellView *psv;
+           if (SUCCEEDED(psb->QueryActiveShellView(&psv))) {
+             IFolderView *pfv;
+             if (SUCCEEDED(psv->QueryInterface(IID_IFolderView,
+                                               (void**)&pfv))) {
+               IPersistFolder2 *ppf2;
+               if (SUCCEEDED(pfv->GetFolder(IID_IPersistFolder2,
+                                            (void**)&ppf2))) {
+                 LPITEMIDLIST pidlFolder;
+                 if (SUCCEEDED(ppf2->GetCurFolder(&pidlFolder))) {
+                   if (!SHGetPathFromIDList(pidlFolder, path)) {
+                     lstrcpyn(path, TEXT("<not a directory>"), MAX_PATH);
+                   }
+                   int iFocus;
+                   if (SUCCEEDED(pfv->GetFocusedItem(&iFocus))) {
+                     LPITEMIDLIST pidlItem;
+                     if (SUCCEEDED(pfv->Item(iFocus, &pidlItem))) {
+                       IShellFolder *psf;
+                       if (SUCCEEDED(ppf2->QueryInterface(IID_IShellFolder,
+                                                          (void**)&psf))) {
+                         STRRET str;
+                         if (SUCCEEDED(psf->GetDisplayNameOf(pidlItem,
+                                                   SHGDN_INFOLDER,
+                                                   &str))) {
+                           StrRetToBuf(&str, pidlItem, item, MAX_PATH);
+                         }
+                         psf->Release();
+                       }
+                       CoTaskMemFree(pidlItem);
+                     }
+                   }
+                   CoTaskMemFree(pidlFolder);
+                 }
+                 ppf2->Release();
+               }
+               pfv->Release();
+             }
+             psv->Release();
+           }
+           psb->Release();
+         }
+       
      
-    HWND webBrowserWnd;
-    VERIFY(webBrowserApp.get()->get_HWND((LONG_PTR*)&webBrowserWnd));
 
-    ServiceProvider serviceProvider(webBrowserApp);
-    ShellBrowser shellBrowser(serviceProvider);
-    ShellView shellView(shellBrowser);
-    FolderView folderView(shellView);
-    PersistFolder2 persistFolder2(folderView);
+    //WebBrowserApp webBrowserApp(dispatch);
+    // 
+    //HWND webBrowserWnd;
+    //VERIFY(webBrowserApp.get()->get_HWND((LONG_PTR*)&webBrowserWnd));
 
-    ItemIdList folder(persistFolder2);
+    //ServiceProvider serviceProvider(webBrowserApp);
+    //ShellBrowser shellBrowser(serviceProvider);
+    //ShellView shellView(shellBrowser);
+    //FolderView folderView(shellView);
+    //PersistFolder2 persistFolder2(folderView);
 
-    if (!SHGetPathFromIDList(folder.get(), path)) {
-        lstrcpyn(path, TEXT("<not a directory>"), maxPathLength);
-    }
-    int iFocus;
-    if (SUCCEEDED(folderView.get()->GetFocusedItem(&iFocus))) {
-        LPITEMIDLIST pidlItem;
-        if (SUCCEEDED(folderView.get()->Item(iFocus, &pidlItem))) {
-        IShellFolder *psf;
-        if (SUCCEEDED(persistFolder2.get()->QueryInterface(IID_IShellFolder, (void**)&psf))) {
-            STRRET str;
-            if (SUCCEEDED(psf->GetDisplayNameOf(pidlItem, SHGDN_INFOLDER, &str))) {
-                StrRetToBuf(&str, pidlItem, item, maxItemLength);
-            }
-            psf->Release();
-        }
-        CoTaskMemFree(pidlItem);
-        }
-    }
+    //ItemIdList folder(persistFolder2);
+
+    //if (!SHGetPathFromIDList(folder.get(), path)) {
+    //    lstrcpyn(path, TEXT("<not a directory>"), maxPathLength);
+    //}
+    //int iFocus;
+    //if (SUCCEEDED(folderView.get()->GetFocusedItem(&iFocus))) {
+    //    LPITEMIDLIST pidlItem;
+    //    if (SUCCEEDED(folderView.get()->Item(iFocus, &pidlItem))) {
+    //    IShellFolder *psf;
+    //    if (SUCCEEDED(persistFolder2.get()->QueryInterface(IID_IShellFolder, (void**)&psf))) {
+    //        STRRET str;
+    //        if (SUCCEEDED(psf->GetDisplayNameOf(pidlItem, SHGDN_INFOLDER, &str))) {
+    //            StrRetToBuf(&str, pidlItem, item, maxItemLength);
+    //        }
+    //        psf->Release();
+    //    }
+    //    CoTaskMemFree(pidlItem);
+    //    }
+    //}
 
 }
