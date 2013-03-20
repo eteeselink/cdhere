@@ -5,3 +5,6 @@ bin
 obj
 *.ipch
 *.filters
+*.sdf
+Debug
+ipch

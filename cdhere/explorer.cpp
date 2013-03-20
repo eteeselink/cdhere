@@ -12,7 +12,7 @@ Exception::Exception(char* message)
 
 void Exception::print()
 {
-    printf(_message);
+    fprintf(stderr, _message);
 }
 
 std::vector<CComPtr<IDispatch> > getShellDispatches(IShellWindows* shellWindows)
@@ -40,6 +40,10 @@ void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLen
 
     auto dispatches = getShellDispatches(psw);
 
+    if(dispatches.empty())
+    {
+        throw Exception("No Explorer window found");
+    }
     IDispatch* dispatch = dispatches[0];
 
     CComPtr<IWebBrowserApp> webBrowserApp;
