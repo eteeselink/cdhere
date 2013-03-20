@@ -15,170 +15,19 @@ void Exception::print()
     printf(_message);
 }
 
-template <typename T> class Wrapper 
+std::vector<CComPtr<IDispatch> > getShellDispatches(IShellWindows* shellWindows)
 {
-protected:
-    T obj;
-public:
-    T& get()
-    {
-        return obj;
+    VARIANT v;
+    V_VT(&v) = VT_I4;
+    std::vector<CComPtr<IDispatch> > dispatches;
+
+    IDispatch *pdisp;
+    for (V_I4(&v) = 0; shellWindows->Item(v, &pdisp) == S_OK; V_I4(&v)++) {
+        dispatches.push_back(pdisp);
     }
 
-    virtual ~Wrapper() {}
-};
-
-template <typename T> class COMObj : public Wrapper<T*> {
-
-public:
-    virtual ~COMObj() 
-    {
-        obj->Release();
-    }
-};
-
-template <typename T> class COMMemObj : public Wrapper<T> {
-
-public:
-    virtual ~COMMemObj() 
-    {
-        CoTaskMemFree(obj);
-    }
-};
-
-
-
-
-class ShellWindows : public COMObj<IShellWindows>
-{
-private:
-    std::vector<IDispatch*> _dispatches;
-
-    void getDispatches()
-    {
-        VARIANT v;
-        V_VT(&v) = VT_I4;
-
-        IDispatch *pdisp;
-        for (V_I4(&v) = 0; obj->Item(v, &pdisp) == S_OK; V_I4(&v)++) {
-            _dispatches.push_back(pdisp);
-        }
-    }
-public:
-    ShellWindows()
-    {
-        VERIFY(CoCreateInstance(CLSID_ShellWindows, NULL, CLSCTX_ALL, IID_IShellWindows, (void**)&obj));
-
-        getDispatches();
-    }
-
-    ~ShellWindows()
-    {
-        for(auto i = _dispatches.begin(); i != _dispatches.end(); i++)
-        {
-            (*i)->Release();
-        }
-    }
-
-    std::vector<IDispatch*> dispatches()
-    {
-        return _dispatches;
-    }
-};
-
-class WebBrowserApp : public COMObj<IWebBrowserApp>
-{
-public:
-    WebBrowserApp(IDispatch  *pdisp)
-    {
-        VERIFY(pdisp->QueryInterface(IID_IWebBrowserApp, (void**)&obj));
-    }
-};
-
-class ServiceProvider : public COMObj<IServiceProvider>
-{
-public:
-    ServiceProvider(WebBrowserApp& webBrowserApp)
-    {
-        VERIFY(webBrowserApp.get()->QueryInterface(IID_IServiceProvider, (void**)&obj));
-    }
-};
-
-class ShellBrowser : public COMObj<IShellBrowser> 
-{
-public:
-    ShellBrowser(ServiceProvider& serviceProvider)
-    {
-        VERIFY(serviceProvider.get()->QueryService(SID_STopLevelBrowser, IID_IShellBrowser, (void**)&obj));
-    }
-};
-
-class ShellView : public COMObj<IShellView>
-{
-public:
-    ShellView(ShellBrowser& shellBrowser)
-    {
-        VERIFY(shellBrowser.get()->QueryActiveShellView(&obj));
-    }
-};
-
-class FolderView : public COMObj<IFolderView>
-{
-public:
-    FolderView(ShellView& shellView) 
-    {
-        VERIFY(shellView.get()->QueryInterface(IID_IFolderView, (void**)&obj));
-    }
-};
-
-class PersistFolder2 : public COMObj<IPersistFolder2>
-{
-public:
-    PersistFolder2(FolderView& folderView)
-    {
-        VERIFY(folderView.get()->GetFolder(IID_IPersistFolder2, (void**)&obj));
-    }
-};
-
-class ItemIdList : public COMMemObj<LPITEMIDLIST>
-{
-public:
-    ItemIdList(PersistFolder2 persistFolder2)
-    {
-        persistFolder2.get()->GetCurFolder(&obj);
-    }
-};
-
-class TaskMemory
-{
-private:
-    void* obj;
-public:
-    TaskMemory(void* obj)
-        : obj(obj)
-    {}
-
-    ~TaskMemory()
-    {
-        CoTaskMemFree(obj);
-    }
-};
-
-template <typename T> class ComObj
-{
-private:
-    T* obj;
-public:
-    ComObj(T* obj)
-        : obj(obj)
-    {}
-
-    ~ComObj()
-    {
-        obj->Release();
-    }
-};
-
+    return dispatches;
+}
 
 void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLength)
 {
@@ -186,100 +35,53 @@ void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLen
     path[0] = TEXT('\0');
     item[0] = TEXT('\0');
  
-    ShellWindows psw;
+    CComPtr<IShellWindows> psw;
+    VERIFY(CoCreateInstance(CLSID_ShellWindows, NULL, CLSCTX_ALL, IID_IShellWindows, (void**)&psw));
 
-    std::vector<IDispatch*> dispatches = psw.dispatches();
+    auto dispatches = getShellDispatches(psw);
 
     IDispatch* dispatch = dispatches[0];
 
-    IWebBrowserApp *pwba;
-    VERIFY(dispatch->QueryInterface(IID_IWebBrowserApp, (void**)&pwba));
-    ComObj<IDispatch> webBrowser(pwba);
+    CComPtr<IWebBrowserApp> webBrowserApp;
+    VERIFY(dispatch->QueryInterface(IID_IWebBrowserApp, (void**)&webBrowserApp));
 
     HWND hwndWBA;
-    VERIFY(pwba->get_HWND((LONG_PTR*)&hwndWBA));
+    VERIFY(webBrowserApp->get_HWND((LONG_PTR*)&hwndWBA));
 
-    IServiceProvider *psp;
-    VERIFY(pwba->QueryInterface(IID_IServiceProvider, (void**)&psp));
-    ComObj<IServiceProvider> serviceProvider(psp);
+    CComPtr<IServiceProvider> serviceProvider;
+    VERIFY(webBrowserApp->QueryInterface(IID_IServiceProvider, (void**)&serviceProvider));
 
-         IShellBrowser *psb;
-         if (SUCCEEDED(psp->QueryService(SID_STopLevelBrowser,
-                              IID_IShellBrowser, (void**)&psb))) {
-           IShellView *psv;
-           if (SUCCEEDED(psb->QueryActiveShellView(&psv))) {
-             IFolderView *pfv;
-             if (SUCCEEDED(psv->QueryInterface(IID_IFolderView,
-                                               (void**)&pfv))) {
-               IPersistFolder2 *ppf2;
-               if (SUCCEEDED(pfv->GetFolder(IID_IPersistFolder2,
-                                            (void**)&ppf2))) {
-                 LPITEMIDLIST pidlFolder;
-                 if (SUCCEEDED(ppf2->GetCurFolder(&pidlFolder))) {
-                   if (!SHGetPathFromIDList(pidlFolder, path)) {
-                     lstrcpyn(path, TEXT("<not a directory>"), MAX_PATH);
-                   }
-                   int iFocus;
-                   if (SUCCEEDED(pfv->GetFocusedItem(&iFocus))) {
-                     LPITEMIDLIST pidlItem;
-                     if (SUCCEEDED(pfv->Item(iFocus, &pidlItem))) {
-                       IShellFolder *psf;
-                       if (SUCCEEDED(ppf2->QueryInterface(IID_IShellFolder,
-                                                          (void**)&psf))) {
-                         STRRET str;
-                         if (SUCCEEDED(psf->GetDisplayNameOf(pidlItem,
-                                                   SHGDN_INFOLDER,
-                                                   &str))) {
-                           StrRetToBuf(&str, pidlItem, item, MAX_PATH);
-                         }
-                         psf->Release();
-                       }
-                       CoTaskMemFree(pidlItem);
-                     }
-                   }
-                   CoTaskMemFree(pidlFolder);
-                 }
-                 ppf2->Release();
-               }
-               pfv->Release();
-             }
-             psv->Release();
-           }
-           psb->Release();
-         }
-       
-     
+    CComPtr<IShellBrowser> shellBrowser;
+    VERIFY(serviceProvider->QueryService(SID_STopLevelBrowser, IID_IShellBrowser, (void**)&shellBrowser));
 
-    //WebBrowserApp webBrowserApp(dispatch);
-    // 
-    //HWND webBrowserWnd;
-    //VERIFY(webBrowserApp.get()->get_HWND((LONG_PTR*)&webBrowserWnd));
+    CComPtr<IShellView> shellView;
+    VERIFY(shellBrowser->QueryActiveShellView(&shellView));
 
-    //ServiceProvider serviceProvider(webBrowserApp);
-    //ShellBrowser shellBrowser(serviceProvider);
-    //ShellView shellView(shellBrowser);
-    //FolderView folderView(shellView);
-    //PersistFolder2 persistFolder2(folderView);
+    CComPtr<IFolderView> folderView;
+    VERIFY(shellView->QueryInterface(IID_IFolderView, (void**)&folderView));
 
-    //ItemIdList folder(persistFolder2);
+    CComPtr<IPersistFolder2> persistFolder2;
+    VERIFY(folderView->GetFolder(IID_IPersistFolder2, (void**)&persistFolder2));
+               
+    CComHeapPtr<ITEMIDLIST> pidlFolder;
+        
+    VERIFY(persistFolder2->GetCurFolder(&pidlFolder));
+    if (!SHGetPathFromIDList(pidlFolder, path)) {
+        lstrcpyn(path, TEXT("<not a directory>"), MAX_PATH);
+    }
 
-    //if (!SHGetPathFromIDList(folder.get(), path)) {
-    //    lstrcpyn(path, TEXT("<not a directory>"), maxPathLength);
-    //}
-    //int iFocus;
-    //if (SUCCEEDED(folderView.get()->GetFocusedItem(&iFocus))) {
-    //    LPITEMIDLIST pidlItem;
-    //    if (SUCCEEDED(folderView.get()->Item(iFocus, &pidlItem))) {
-    //    IShellFolder *psf;
-    //    if (SUCCEEDED(persistFolder2.get()->QueryInterface(IID_IShellFolder, (void**)&psf))) {
-    //        STRRET str;
-    //        if (SUCCEEDED(psf->GetDisplayNameOf(pidlItem, SHGDN_INFOLDER, &str))) {
-    //            StrRetToBuf(&str, pidlItem, item, maxItemLength);
-    //        }
-    //        psf->Release();
-    //    }
-    //    CoTaskMemFree(pidlItem);
-    //    }
-    //}
+    int iFocus;
+    VERIFY(folderView->GetFocusedItem(&iFocus));
+
+    CComHeapPtr<ITEMIDLIST> pidlItem;
+    VERIFY(folderView->Item(iFocus, &pidlItem));
+
+    CComPtr<IShellFolder> shellFolder;
+    VERIFY(persistFolder2->QueryInterface(IID_IShellFolder, (void**)&shellFolder));
+
+    STRRET str;
+    VERIFY(shellFolder->GetDisplayNameOf(pidlItem, SHGDN_INFOLDER, &str));
+    
+    StrRetToBuf(&str, pidlItem, item, MAX_PATH);
 
 }

@@ -32,7 +32,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
         GetExplorerPath(path, CDHERE_MAX_PATH, item, CDHERE_MAX_PATH);
 
-        printf(path);
+        printf("%s\n", path);
     }
     catch(Exception e)
     {
