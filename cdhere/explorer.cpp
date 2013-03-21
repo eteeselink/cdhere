@@ -71,7 +71,8 @@ void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLen
         
     VERIFY(persistFolder2->GetCurFolder(&pidlFolder));
     if (!SHGetPathFromIDList(pidlFolder, path)) {
-        lstrcpyn(path, TEXT("<not a directory>"), MAX_PATH);
+        throw Exception("Explorer window not pointed at a directory");
+        //lstrcpyn(path, TEXT("<not a directory>"), MAX_PATH);
     }
 
     int iFocus;

@@ -14,6 +14,7 @@
     <ProjectGuid>{3B46C120-E6C8-47A6-B787-03469557E743}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>cdhere</RootNamespace>
+    <ProjectName>cdshell</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -58,7 +59,7 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)cdhere.bat $(OutputPath)</Command>
+      <Command>copy $(ProjectDir)*.bat $(OutputPath)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,7 +83,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="cdhere.bat">
+    <None Include="cds.bat">
       <DeploymentContent>true</DeploymentContent>
       <FileType>Text</FileType>
     </None>
