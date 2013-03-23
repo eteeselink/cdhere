@@ -5,6 +5,8 @@
 #include "explorer.h"
 #include <vector>
 
+#define CDHERE_MAX_PATH 520
+
 Exception::Exception(char* message)
 {
     _message = message;
@@ -29,11 +31,10 @@ std::vector<CComPtr<IDispatch> > getShellDispatches(IShellWindows* shellWindows)
     return dispatches;
 }
 
-void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLength)
+ExplorerInfo getExplorerPath()
 {
     HWND hwndFind = GetForegroundWindow();
-    path[0] = TEXT('\0');
-    item[0] = TEXT('\0');
+    ExplorerInfo info;
  
     CComPtr<IShellWindows> psw;
     VERIFY(CoCreateInstance(CLSID_ShellWindows, NULL, CLSCTX_ALL, IID_IShellWindows, (void**)&psw));
@@ -70,10 +71,12 @@ void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLen
     CComHeapPtr<ITEMIDLIST> pidlFolder;
         
     VERIFY(persistFolder2->GetCurFolder(&pidlFolder));
+    char path[CDHERE_MAX_PATH];
     if (!SHGetPathFromIDList(pidlFolder, path)) {
         throw Exception("Explorer window not pointed at a directory");
         //lstrcpyn(path, TEXT("<not a directory>"), MAX_PATH);
     }
+    info.path = path;
 
     int iFocus;
     VERIFY(folderView->GetFocusedItem(&iFocus));
@@ -87,6 +90,9 @@ void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLen
     STRRET str;
     VERIFY(shellFolder->GetDisplayNameOf(pidlItem, SHGDN_INFOLDER, &str));
     
-    StrRetToBuf(&str, pidlItem, item, MAX_PATH);
+    char item[CDHERE_MAX_PATH];
+    StrRetToBuf(&str, pidlItem, item, CDHERE_MAX_PATH);
+    info.item = item;
 
+    return info;
 }

@@ -1,10 +1,7 @@
-// cdhere.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
 #include "explorer.h"
-
-#define CDHERE_MAX_PATH 620
+#include "windowlist.h"
+#include <vector>
 
 class COMNess
 {
@@ -27,12 +24,10 @@ int _tmain(int argc, _TCHAR* argv[])
     {
         COMNess com;
 
-        TCHAR path[CDHERE_MAX_PATH];
-        TCHAR item[CDHERE_MAX_PATH];
+        auto windows = getOrderedWindows();
+        auto explorerInfo = getExplorerPath();
 
-        GetExplorerPath(path, CDHERE_MAX_PATH, item, CDHERE_MAX_PATH);
-
-        printf("%s\n", path);
+        printf("%s\n", explorerInfo.path.c_str());
     }
     catch(Exception e)
     {

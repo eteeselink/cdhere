@@ -1,9 +1,5 @@
 #include "stdafx.h"
 
-#define VERIFY(r) { HRESULT __result = (r); if(!SUCCEEDED(__result)) { throw Exception(#r); } }
-
-void GetExplorerPath(TCHAR* path, int maxPathLength, TCHAR* item, int maxItemLength);
-
 class Exception 
 {
 private:
@@ -14,3 +10,14 @@ public:
 
     void print();
 };
+
+struct ExplorerInfo
+{
+    String path;
+    String item;
+};
+
+#define VERIFY(r) { HRESULT __result = (r); if(!SUCCEEDED(__result)) { throw Exception(#r); } }
+
+ExplorerInfo getExplorerPath();
+

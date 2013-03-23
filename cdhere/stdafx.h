@@ -11,7 +11,12 @@
 #include <tchar.h>
 #include <Windows.h>
 #include <atlbase.h>
+#include <string>
 
-
+#ifndef UNICODE  
+  typedef std::string String; 
+#else
+  typedef std::wstring String; 
+#endif
 
 // TODO: reference additional headers your program requires here
