@@ -25,7 +25,7 @@ int _tmain(int argc, _TCHAR* argv[])
         COMNess com;
 
         auto windows = getOrderedWindows();
-        auto explorerInfo = getExplorerPath();
+        auto explorerInfo = getExplorerPath(windows);
 
         printf("%s\n", explorerInfo.path.c_str());
     }

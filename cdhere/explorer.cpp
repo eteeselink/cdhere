@@ -3,7 +3,7 @@
 #include <Shlwapi.h>
 #include <exdisp.h>
 #include "explorer.h"
-#include <vector>
+#include <algorithm>
 
 #define CDHERE_MAX_PATH 520
 
@@ -31,21 +31,60 @@ std::vector<CComPtr<IDispatch> > getShellDispatches(IShellWindows* shellWindows)
     return dispatches;
 }
 
-ExplorerInfo getExplorerPath()
+HWND getHwnd(IDispatch* dispatch)
 {
-    HWND hwndFind = GetForegroundWindow();
+    CComPtr<IWebBrowserApp> webBrowserApp;
+    VERIFY(dispatch->QueryInterface(IID_IWebBrowserApp, (void**)&webBrowserApp));
+
+    HWND hwnd;
+    VERIFY(webBrowserApp->get_HWND((LONG_PTR*)&hwnd));
+    return hwnd;
+}
+
+IDispatch* getFirstWindowInList(const std::vector<CComPtr<IDispatch> > dispatches, std::vector<HWND> windowList)
+{
+    std::vector<HWND> dispatchWindows;
+
+    struct {
+        IDispatch* dispatch;
+        size_t index;
+    } best = { NULL, MAXUINT };
+
+    // go through all `dispatches`, and find the one whose hwnd is earliest in `windowList`
+    for(auto dispatchIter = dispatches.begin(); dispatchIter != dispatches.end(); dispatchIter++)
+    {
+        HWND hwnd = getHwnd(*dispatchIter); 
+        
+        auto item = std::find(windowList.begin(), windowList.end(), hwnd);
+        if(item != windowList.end())
+        {
+            size_t index = item - windowList.begin();
+            if(index < best.index)
+            {
+                best.dispatch = *dispatchIter;
+                best.index = item - windowList.begin();
+            }
+        }
+    }
+
+    return best.dispatch;
+}
+
+ExplorerInfo getExplorerPath(std::vector<HWND> windowsToSearch)
+{
+    
     ExplorerInfo info;
  
     CComPtr<IShellWindows> psw;
     VERIFY(CoCreateInstance(CLSID_ShellWindows, NULL, CLSCTX_ALL, IID_IShellWindows, (void**)&psw));
 
     auto dispatches = getShellDispatches(psw);
-
-    if(dispatches.empty())
+    
+    IDispatch* dispatch = getFirstWindowInList(dispatches, windowsToSearch);
+    if(dispatch == NULL)
     {
-        throw Exception("No Explorer window found");
+        throw Exception("No explorer window found");
     }
-    IDispatch* dispatch = dispatches[0];
 
     CComPtr<IWebBrowserApp> webBrowserApp;
     VERIFY(dispatch->QueryInterface(IID_IWebBrowserApp, (void**)&webBrowserApp));

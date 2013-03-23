@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <vector>
 
 class Exception 
 {
@@ -19,5 +20,5 @@ struct ExplorerInfo
 
 #define VERIFY(r) { HRESULT __result = (r); if(!SUCCEEDED(__result)) { throw Exception(#r); } }
 
-ExplorerInfo getExplorerPath();
+ExplorerInfo getExplorerPath(std::vector<HWND> windowsToSearch);
 
