@@ -1,5 +1,7 @@
 @echo off
 
+set HEREINFO=
+
 :: execute hereinfo, store output in %HEREINFO%
 :: hereinfo will write any errors to stderr
 FOR /F "tokens=*" %%i in ('%~dp0hereinfo.exe') do SET HEREINFO=%%i
@@ -12,4 +14,4 @@ if "%HEREINFO%"=="" (
 )
 
 :: remove %HEREINFO% 
-set HEREINFO=
+::set HEREINFO=

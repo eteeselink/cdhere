@@ -7,14 +7,14 @@
 
 #define CDHERE_MAX_PATH 520
 
-Exception::Exception(char* message)
+Exception::Exception(std::wstring const& message)
+    : _message(message)
 {
-    _message = message;
 }
 
 void Exception::print()
 {
-    fprintf(stderr, _message);
+    std::wcerr << _message;
 }
 
 std::vector<CComPtr<IDispatch> > getShellDispatches(IShellWindows* shellWindows)
@@ -83,7 +83,7 @@ ExplorerInfo getExplorerPath(std::vector<HWND> windowsToSearch)
     IDispatch* dispatch = getFirstWindowInList(dispatches, windowsToSearch);
     if(dispatch == NULL)
     {
-        throw Exception("No explorer window found");
+        throw Exception(L"No explorer window found");
     }
 
     CComPtr<IWebBrowserApp> webBrowserApp;
@@ -110,15 +110,20 @@ ExplorerInfo getExplorerPath(std::vector<HWND> windowsToSearch)
     CComHeapPtr<ITEMIDLIST> pidlFolder;
         
     VERIFY(persistFolder2->GetCurFolder(&pidlFolder));
-    char path[CDHERE_MAX_PATH];
+    WCHAR path[CDHERE_MAX_PATH];
     if (!SHGetPathFromIDList(pidlFolder, path)) {
-        throw Exception("Explorer window not pointed at a directory");
-        //lstrcpyn(path, TEXT("<not a directory>"), MAX_PATH);
+        throw Exception(L"Explorer window not pointed at a directory");
     }
     info.path = path;
 
     int iFocus;
     VERIFY(folderView->GetFocusedItem(&iFocus));
+    
+    if(iFocus == -1)
+    {
+        // no item selected. silently fail, since we currently do no use the item.
+        return info;
+    }
 
     CComHeapPtr<ITEMIDLIST> pidlItem;
     VERIFY(folderView->Item(iFocus, &pidlItem));
@@ -129,7 +134,7 @@ ExplorerInfo getExplorerPath(std::vector<HWND> windowsToSearch)
     STRRET str;
     VERIFY(shellFolder->GetDisplayNameOf(pidlItem, SHGDN_INFOLDER, &str));
     
-    char item[CDHERE_MAX_PATH];
+    WCHAR item[CDHERE_MAX_PATH];
     StrRetToBuf(&str, pidlItem, item, CDHERE_MAX_PATH);
     info.item = item;
 

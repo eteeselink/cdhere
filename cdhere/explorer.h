@@ -4,21 +4,25 @@
 class Exception 
 {
 private:
-    char* _message;
+    std::wstring _message;
 
 public:
-    Exception(char* message);
+    Exception(std::wstring const& message);
 
     void print();
 };
 
 struct ExplorerInfo
 {
-    String path;
-    String item;
+    std::wstring path;
+    std::wstring item;
 };
 
-#define VERIFY(r) { HRESULT __result = (r); if(!SUCCEEDED(__result)) { throw Exception(#r); } }
+#define VERIFY(r) { \
+    HRESULT __result = (r); if(!SUCCEEDED(__result)) { \
+        throw Exception(std::wstring(L"Error while executing `" L#r L"`. Code: ") + std::to_wstring((long long)__result)); \
+    } \
+}
 
 ExplorerInfo getExplorerPath(std::vector<HWND> windowsToSearch);
 

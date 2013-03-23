@@ -2,6 +2,7 @@
 #include "explorer.h"
 #include "windowlist.h"
 #include <vector>
+#include <iostream>
 
 class COMNess
 {
@@ -17,9 +18,9 @@ public:
     }
 };
 
-std::vector<String> getArgs(int argc, _TCHAR* argv[])
+std::vector<std::wstring> getArgs(int argc, WCHAR* argv[])
 {
-    std::vector<String> args;
+    std::vector<std::wstring> args;
     for(int i = 0; i < argc; i++)
     {
         args.push_back(argv[i]);
@@ -28,7 +29,7 @@ std::vector<String> getArgs(int argc, _TCHAR* argv[])
 }
 
 
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain(int argc, WCHAR* argv[])
 {
 
     try
@@ -37,10 +38,10 @@ int _tmain(int argc, _TCHAR* argv[])
         
         if(args.size() == 2)
         {
-            String& arg = args[1];
-            if((arg == "-h") || (arg == "--help") || (arg == "/h"))
+            auto arg = args[1];
+            if((arg == L"-h") || (arg == L"--help") || (arg == L"/h"))
             {
-                printf("Prints the location of the topmost Windows Explorer window to STDOUT");
+                std::wcout << L"Prints the location of the topmost Windows Explorer window to STDOUT";
                 return 2;
             }
         }
@@ -50,7 +51,9 @@ int _tmain(int argc, _TCHAR* argv[])
         auto windows = getOrderedWindows();
         auto explorerInfo = getExplorerPath(windows);
 
-        printf("%s\n", explorerInfo.path.c_str());
+        // For reasons that I do not understand, std::wcout cuts off non-ASCII characters.
+        DWORD written;
+        WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), explorerInfo.path.c_str(), explorerInfo.path.length(), &written, NULL);
     }
     catch(Exception e)
     {
