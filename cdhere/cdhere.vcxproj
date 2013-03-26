@@ -85,7 +85,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="readme.md" />
     <None Include="src\addToPath.cmd" />
     <None Include="src\cdhere.cmd" />
   </ItemGroup>
