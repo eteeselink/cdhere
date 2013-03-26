@@ -23,11 +23,9 @@ Usage
     cdhere
 
 Which looks like:
-<!-- my apologies to peolpe reading the below in a text editor; it's not very markdownish of me, really-->
-<pre>
-C:\Users\teeselinke>cdhere
-D:\hobby\cdhere\cdhere\src><blink>▮</blink>
-</pre>
+
+    C:\Users\teeselinke>cdhere
+    D:\hobby\cdhere\cdhere\src>
 
 Background
 ----------
