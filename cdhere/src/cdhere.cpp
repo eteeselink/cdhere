@@ -51,9 +51,7 @@ int _tmain(int argc, WCHAR* argv[])
         auto windows = getOrderedWindows();
         auto explorerInfo = getExplorerPath(windows);
 
-        // For reasons that I do not understand, std::wcout cuts off non-ASCII characters.
-        DWORD written;
-        WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), explorerInfo.path.c_str(), explorerInfo.path.length(), &written, NULL);
+        std::wcout << explorerInfo.path;
     }
     catch(Exception e)
     {

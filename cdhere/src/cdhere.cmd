@@ -1,17 +1,16 @@
 @echo off
 
-set HEREINFO=
+set CDWHERE=
 
-:: execute hereinfo, store output in %HEREINFO%
-:: hereinfo will write any errors to stderr
-FOR /F "tokens=*" %%i in ('%~dp0hereinfo.exe') do SET HEREINFO=%%i
+:: execute cdwhere, store output in %CDWHERE%
+:: cdwhere will write any errors to stderr
+for /f %%a in ('%~dp0cdwhere.exe') do SET CDWHERE=%%a
 
-if "%HEREINFO%"=="" (
+if "%CDWHERE%"=="" (
   rem got error
 ) else (
-  echo going to %HEREINFO%
-  cd /d %HEREINFO%
+  cd /d %CDWHERE%
 )
 
-:: remove %HEREINFO% 
-::set HEREINFO=
+:: remove %CDWHERE% 
+set CDWHERE=
