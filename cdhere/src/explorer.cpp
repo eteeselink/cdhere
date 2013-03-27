@@ -17,6 +17,13 @@ void Exception::print()
     std::wcerr << _message;
 }
 
+void verify(HRESULT result, std::wstring const& message)
+{
+    if(!SUCCEEDED(result)) {
+        throw Exception(message + L"Code: " + std::to_wstring((long long)result));
+    }
+}
+
 std::vector<CComPtr<IDispatch> > getShellDispatches(IShellWindows* shellWindows)
 {
     VARIANT v;
@@ -88,9 +95,6 @@ ExplorerInfo getExplorerPath(std::vector<HWND> windowsToSearch)
 
     CComPtr<IWebBrowserApp> webBrowserApp;
     VERIFY(dispatch->QueryInterface(IID_IWebBrowserApp, (void**)&webBrowserApp));
-
-    HWND hwndWBA;
-    VERIFY(webBrowserApp->get_HWND((LONG_PTR*)&hwndWBA));
 
     CComPtr<IServiceProvider> serviceProvider;
     VERIFY(webBrowserApp->QueryInterface(IID_IServiceProvider, (void**)&serviceProvider));

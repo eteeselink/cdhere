@@ -18,11 +18,13 @@ struct ExplorerInfo
     std::wstring item;
 };
 
-#define VERIFY(r) { \
-    HRESULT __result = (r); if(!SUCCEEDED(__result)) { \
-        throw Exception(std::wstring(L"Error while executing `" L#r L"`. Code: ") + std::to_wstring((long long)__result)); \
-    } \
-}
+void verify(HRESULT result, std::wstring const& message);
+
+#define VERIFY(r) verify((r), L#r);
+//    HRESULT __result = (r); if(!SUCCEEDED(__result)) { \
+//        throw Exception(std::wstring(L"Error while executing `" L#r L"`.") + std::to_wstring((long long)__result)); \
+//    } \
+//}
 
 ExplorerInfo getExplorerPath(std::vector<HWND> windowsToSearch);
 
