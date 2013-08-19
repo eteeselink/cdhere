@@ -9,3 +9,4 @@ obj
 Debug
 ipch
 *.sdf
+*.ncrunch*
