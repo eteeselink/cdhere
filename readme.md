@@ -51,6 +51,9 @@ Explorer window where it's pointed. This, however, is something that Raymond
 Chen (of [The Old New Thing][5] fame) already worked out for me [back in 2004]
 [6]. Much of the code you see here is little more than his example refactored.
 
+License
+-------
+[zlib license][7]
 
 [1]: http://www.mydigitallife.info/add-open-command-window-here-to-xp-folder-with-powertoy/
 [2]: http://stackoverflow.com/a/1225574/103395
@@ -58,3 +61,4 @@ Chen (of [The Old New Thing][5] fame) already worked out for me [back in 2004]
 [4]: http://go.microsoft.com/fwlink/?LinkId=211417
 [5]: http://blogs.msdn.com/b/oldnewthing
 [6]: http://blogs.msdn.com/b/oldnewthing/archive/2004/07/20/188696.aspx
+[7]: https://github.com/eteeselink/cdhere/raw/master/LICENSE.txt
