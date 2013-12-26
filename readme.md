@@ -61,7 +61,7 @@ Explorer window where it's pointed. This, however, is something that Raymond
 Chen (of [The Old New Thing][5] fame) already worked out for me [back in 2004]
 [6]. Much of the code you see here is little more than his example refactored.
 
-The `cdto` tool was contributed by [Danyil Bohdan][7]
+The `/d` switch was contributed by [Danyil Bohdan][7]
 
 License
 -------
