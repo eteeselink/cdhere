@@ -42,7 +42,7 @@ to STDOUT";
 		br_info.lParam = reinterpret_cast<LPARAM>(initial_dir); 
 		br_info.lpfn = BrowseFolderCallback;
 		br_info.lpszTitle = L"Please select folder";
-		br_info.ulFlags = BIF_SHAREABLE;
+		br_info.ulFlags = BIF_SHAREABLE | BIF_USENEWUI;
 		LPITEMIDLIST lpItem = SHBrowseForFolder(&br_info);
 
 		if(lpItem != NULL && SHGetPathFromIDList(lpItem, selected_dir))
