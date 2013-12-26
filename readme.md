@@ -33,7 +33,7 @@ Interactive mode
 
 A second command, `cdto`, is included, which is essentially an interactive version of `cdhere`. Usage is simple:
 
-    `cdto`
+    cdto
     
 This will open a "Browse to folder" dialog, and your command-line window will change the current directory to the selected folder.
 
