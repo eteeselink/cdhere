@@ -38,6 +38,19 @@ Add a `/d` for an interactive version of plain `cdhere`. Usage is simple:
 This will open a "Browse to folder" dialog, and your command-line window will change the current directory to the selected folder.
 
 
+Usage from Bash
+---------------
+If you use Bash on Windows (e.g. through msys of cygwin), [ozh][9] recommends you add the following to your `~/.bash_profile`:
+
+```sh
+function cdhere {
+	CDWHERE=$(c:/path/to/cdhere/cdwhere.exe)
+	if [ "$CDWHERE" != "" ]; then
+		cd $CDWHERE
+	fi
+}
+```
+
 Background
 ----------
 
@@ -75,3 +88,4 @@ License
 [6]: http://blogs.msdn.com/b/oldnewthing/archive/2004/07/20/188696.aspx
 [7]: https://github.com/dbohdan
 [8]: https://github.com/eteeselink/cdhere/raw/master/LICENSE.txt
+[9]: https://github.com/ozh
