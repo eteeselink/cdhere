@@ -13,6 +13,7 @@
 #include <atlbase.h>
 #include <string>
 #include <iostream>
+#include <Shlobj.h>
 
 
 

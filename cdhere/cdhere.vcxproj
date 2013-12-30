@@ -100,6 +100,7 @@ copy $(SolutionDir)*.txt $(OutputPath)</Command>
     <None Include="src\cdhere.cmd" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\browsefolder.cpp" />
     <ClCompile Include="src\cdhere.cpp" />
     <ClCompile Include="src\explorer.cpp" />
     <ClCompile Include="src\stdafx.cpp">
@@ -109,6 +110,7 @@ copy $(SolutionDir)*.txt $(OutputPath)</Command>
     <ClCompile Include="src\windowlist.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\browsefolder.h" />
     <ClInclude Include="include\explorer.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />

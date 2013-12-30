@@ -1,16 +1,15 @@
 @echo off
 
 set CDWHERE=
-set PROGRAM=cdwhere
+set CDHERE_OPTS=
 
 if !%1!==!/d! (
-  set PROGRAM=cdto
-  set OPTS=%2
+  set CDHERE_OPTS=/d %2
 )
 
 :: execute cdwhere, store output in %CDWHERE%
 :: cdwhere will write any errors to stderr
-for /f "delims=" %%a in ('%~dps0%PROGRAM%.exe %OPTS%') do SET CDWHERE=%%a
+for /f "delims=" %%a in ('%~dps0cdwhere.exe %CDHERE_OPTS%') do SET CDWHERE=%%a
 
 if "%CDWHERE%"=="" (
   rem got error
@@ -18,5 +17,6 @@ if "%CDWHERE%"=="" (
   cd /d %CDWHERE%
 )
 
-:: remove %CDWHERE% 
+:: remove env vars
 set CDWHERE=
+set CDHERE_OPTS=
