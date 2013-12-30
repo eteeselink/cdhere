@@ -10,7 +10,7 @@ if !%1!==!/d! (
 
 :: execute cdwhere, store output in %CDWHERE%
 :: cdwhere will write any errors to stderr
-for /f "delims=" %%a in ('%~dp0%PROGRAM%.exe %OPTS%') do SET CDWHERE=%%a
+for /f "delims=" %%a in ('%~dps0%PROGRAM%.exe %OPTS%') do SET CDWHERE=%%a
 
 if "%CDWHERE%"=="" (
   rem got error
