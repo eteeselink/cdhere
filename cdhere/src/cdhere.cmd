@@ -14,7 +14,7 @@ for /f "delims=" %%a in ('%~dps0cdwhere.exe %CDHERE_OPTS%') do SET CDWHERE=%%a
 if "%CDWHERE%"=="" (
   rem got error
 ) else (
-  cd /d %CDWHERE%
+  cd /d "%CDWHERE%"
 )
 
 :: remove env vars
