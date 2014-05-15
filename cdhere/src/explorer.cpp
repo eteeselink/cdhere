@@ -4,6 +4,7 @@
 #include <exdisp.h>
 #include "explorer.h"
 #include <algorithm>
+#include <comdef.h>
 
 #define CDHERE_MAX_PATH 520
 
@@ -17,10 +18,15 @@ void Exception::print()
     std::wcerr << _message;
 }
 
-void verify(HRESULT result, std::wstring const& message)
+void verify(HRESULT result, std::wstring const& call)
 {
     if(!SUCCEEDED(result)) {
-        throw Exception(message + L"Code: " + std::to_wstring((long long)result));
+		_com_error error(result);
+		std::wstring code = std::to_wstring((long long)result);
+
+		throw Exception(L"Error calling '" + call +
+						L"'.\n  Code: " + code + 
+						L"'.\n  Message: " + error.ErrorMessage());
     }
 }
 
@@ -44,7 +50,7 @@ HWND getHwnd(IDispatch* dispatch)
     VERIFY(dispatch->QueryInterface(IID_IWebBrowserApp, (void**)&webBrowserApp));
 
     HWND hwnd;
-    VERIFY(webBrowserApp->get_HWND((LONG_PTR*)&hwnd));
+    VERIFY(webBrowserApp->get_HWND((LONG_PTR*)0));
     return hwnd;
 }
 
