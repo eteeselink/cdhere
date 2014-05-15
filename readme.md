@@ -13,7 +13,7 @@ want it to be.
 Installation
 ------------
 
-* Download <https://github.com/eteeselink/cdhere/raw/master/Downloads/cdhere-1.3.zip>
+* Download <https://github.com/eteeselink/cdhere/raw/master/Downloads/cdhere-1.4.zip>
   and unzip it somewhere convenient.
 * Run `addToPath.cmd` with administrator priviledges to add the directory to
   your PATH, so that you can acces `cdhere` from anywhere.
