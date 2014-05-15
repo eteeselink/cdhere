@@ -5,6 +5,8 @@
 #include "explorer.h"
 #include <algorithm>
 #include <comdef.h>
+#include <iomanip>
+#include <sstream>
 
 #define CDHERE_MAX_PATH 520
 
@@ -22,10 +24,11 @@ void verify(HRESULT result, std::wstring const& call)
 {
     if(!SUCCEEDED(result)) {
 		_com_error error(result);
-		std::wstring code = std::to_wstring((long long)result);
+		std::wostringstream code;
+		code << std::hex << result;
 
 		throw Exception(L"Error calling '" + call +
-						L"'.\n  Code: " + code + 
+						L"'.\n  Code: 0x" + code.str() + 
 						L"'.\n  Message: " + error.ErrorMessage());
     }
 }
@@ -50,7 +53,7 @@ HWND getHwnd(IDispatch* dispatch)
     VERIFY(dispatch->QueryInterface(IID_IWebBrowserApp, (void**)&webBrowserApp));
 
     HWND hwnd;
-    VERIFY(webBrowserApp->get_HWND((LONG_PTR*)0));
+	VERIFY(webBrowserApp->get_HWND((LONG_PTR*)&hwnd));
     return hwnd;
 }
 
